@@ -380,7 +380,7 @@ class ImageReaderUInt8:
         parameters_py = Parameters()
         for i in range(parameters.contents.mValuesCount):
             for j in range(parameters.contents.mValues[i].mValuesCount):
-                parameters_py.set_value(parameters.contents.mValues[i].mName.decode("utf-8"), parameters.contents.mValues[i].mValues[j].mName.decode("utf-8"), parameters.contents.mValues[i].mValues[j].mValue.decode("utf-8"))
+                parameters_py.set_value(parameters.contents.mValues[i].mName.decode("utf-8"), parameters.contents.mValues[i].mValues[j].mName.decode("utf-8"), parameters.contents.mValues[i].mValues[j].mValue.decode("utf-8", errors="replace"))
         self.FreeParameters(parameters)
         return parameters_py
 
@@ -528,7 +528,7 @@ class ImageReaderUInt16:
         parameters_py = Parameters()
         for i in range(parameters.contents.mValuesCount):
             for j in range(parameters.contents.mValues[i].mValuesCount):
-                parameters_py.set_value(parameters.contents.mValues[i].mName.decode("utf-8"), parameters.contents.mValues[i].mValues[j].mName.decode("utf-8"), parameters.contents.mValues[i].mValues[j].mValue.decode("utf-8"))
+                parameters_py.set_value(parameters.contents.mValues[i].mName.decode("utf-8"), parameters.contents.mValues[i].mValues[j].mName.decode("utf-8"), parameters.contents.mValues[i].mValues[j].mValue.decode("utf-8", errors="replace"))
         self.FreeParameters(parameters)
         return parameters_py
 
@@ -676,7 +676,7 @@ class ImageReaderUInt32:
         parameters_py = Parameters()
         for i in range(parameters.contents.mValuesCount):
             for j in range(parameters.contents.mValues[i].mValuesCount):
-                parameters_py.set_value(parameters.contents.mValues[i].mName.decode("utf-8"), parameters.contents.mValues[i].mValues[j].mName.decode("utf-8"), parameters.contents.mValues[i].mValues[j].mValue.decode("utf-8"))
+                parameters_py.set_value(parameters.contents.mValues[i].mName.decode("utf-8"), parameters.contents.mValues[i].mValues[j].mName.decode("utf-8"), parameters.contents.mValues[i].mValues[j].mValue.decode("utf-8", errors="replace"))
         self.FreeParameters(parameters)
         return parameters_py
 
@@ -824,7 +824,7 @@ class ImageReaderFloat:
         parameters_py = Parameters()
         for i in range(parameters.contents.mValuesCount):
             for j in range(parameters.contents.mValues[i].mValuesCount):
-                parameters_py.set_value(parameters.contents.mValues[i].mName.decode("utf-8"), parameters.contents.mValues[i].mValues[j].mName.decode("utf-8"), parameters.contents.mValues[i].mValues[j].mValue.decode("utf-8"))
+                parameters_py.set_value(parameters.contents.mValues[i].mName.decode("utf-8"), parameters.contents.mValues[i].mValues[j].mName.decode("utf-8"), parameters.contents.mValues[i].mValues[j].mValue.decode("utf-8", errors="replace"))
         self.FreeParameters(parameters)
         return parameters_py
 
