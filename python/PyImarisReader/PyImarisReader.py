@@ -433,24 +433,17 @@ class ImageReaderUInt8:
     def Read(self, begin: Index5D, end: Index5D, resolution_index: int):
         import numpy as np
 
-        buffer_size = (
-            (end.mX - begin.mX)
-            * (end.mY - begin.mY)
-            * (end.mZ - begin.mZ)
-            * (end.mC - begin.mC)
-            * (end.mT - begin.mT)
-        )
-        buffer = (bpReaderTypesC_UInt8 * buffer_size)()
-        self.ReadData(begin, end, resolution_index, buffer)
-        return np.asarray(buffer, dtype=np.uint8).reshape(
-            (
-                end.mT - begin.mT,
-                end.mC - begin.mC,
-                end.mZ - begin.mZ,
-                end.mY - begin.mY,
-                end.mX - begin.mX,
-            )
-        )
+        sx = end.mX - begin.mX
+        sy = end.mY - begin.mY
+        sz = end.mZ - begin.mZ
+        sc = end.mC - begin.mC
+        st = end.mT - begin.mT
+
+        buffer_size = sx * sy * sz * sc * st
+        buffer = np.empty(buffer_size, dtype=np.uint8)
+        buffer_pointer = buffer.ctypes.data_as(POINTER(bpReaderTypesC_UInt8))
+        self.ReadData(begin, end, resolution_index, buffer_pointer)
+        return buffer.reshape(st, sc, sz, sy, sx)
 
     def ReadMetadata(self):
         imageSizePerResolution = bpReaderTypesC_Size5DVectorPtr(
@@ -698,24 +691,17 @@ class ImageReaderUInt16:
     def Read(self, begin: Index5D, end: Index5D, resolution_index: int):
         import numpy as np
 
-        buffer_size = (
-            (end.mX - begin.mX)
-            * (end.mY - begin.mY)
-            * (end.mZ - begin.mZ)
-            * (end.mC - begin.mC)
-            * (end.mT - begin.mT)
-        )
-        buffer = (bpReaderTypesC_UInt16 * buffer_size)()
-        self.ReadData(begin, end, resolution_index, buffer)
-        return np.asarray(buffer, dtype=np.uint16).reshape(
-            (
-                end.mT - begin.mT,
-                end.mC - begin.mC,
-                end.mZ - begin.mZ,
-                end.mY - begin.mY,
-                end.mX - begin.mX,
-            )
-        )
+        sx = end.mX - begin.mX
+        sy = end.mY - begin.mY
+        sz = end.mZ - begin.mZ
+        sc = end.mC - begin.mC
+        st = end.mT - begin.mT
+
+        buffer_size = sx * sy * sz * sc * st
+        buffer = np.empty(buffer_size, dtype=np.uint16)
+        buffer_pointer = buffer.ctypes.data_as(POINTER(bpReaderTypesC_UInt16))
+        self.ReadData(begin, end, resolution_index, buffer_pointer)
+        return buffer.reshape(st, sc, sz, sy, sx)
 
     def ReadMetadata(self):
         imageSizePerResolution = bpReaderTypesC_Size5DVectorPtr(
@@ -963,24 +949,17 @@ class ImageReaderUInt32:
     def Read(self, begin: Index5D, end: Index5D, resolution_index: int):
         import numpy as np
 
-        buffer_size = (
-            (end.mX - begin.mX)
-            * (end.mY - begin.mY)
-            * (end.mZ - begin.mZ)
-            * (end.mC - begin.mC)
-            * (end.mT - begin.mT)
-        )
-        buffer = (bpReaderTypesC_UInt32 * buffer_size)()
-        self.ReadData(begin, end, resolution_index, buffer)
-        return np.asarray(buffer, dtype=np.uint32).reshape(
-            (
-                end.mT - begin.mT,
-                end.mC - begin.mC,
-                end.mZ - begin.mZ,
-                end.mY - begin.mY,
-                end.mX - begin.mX,
-            )
-        )
+        sx = end.mX - begin.mX
+        sy = end.mY - begin.mY
+        sz = end.mZ - begin.mZ
+        sc = end.mC - begin.mC
+        st = end.mT - begin.mT
+
+        buffer_size = sx * sy * sz * sc * st
+        buffer = np.empty(buffer_size, dtype=np.uint32)
+        buffer_pointer = buffer.ctypes.data_as(POINTER(bpReaderTypesC_UInt32))
+        self.ReadData(begin, end, resolution_index, buffer_pointer)
+        return buffer.reshape(st, sc, sz, sy, sx)
 
     def ReadMetadata(self):
         imageSizePerResolution = bpReaderTypesC_Size5DVectorPtr(
@@ -1228,24 +1207,17 @@ class ImageReaderFloat:
     def Read(self, begin: Index5D, end: Index5D, resolution_index: int):
         import numpy as np
 
-        buffer_size = (
-            (end.mX - begin.mX)
-            * (end.mY - begin.mY)
-            * (end.mZ - begin.mZ)
-            * (end.mC - begin.mC)
-            * (end.mT - begin.mT)
-        )
-        buffer = (bpReaderTypesC_Float * buffer_size)()
-        self.ReadData(begin, end, resolution_index, buffer)
-        return np.asarray(buffer, dtype=np.float32).reshape(
-            (
-                end.mT - begin.mT,
-                end.mC - begin.mC,
-                end.mZ - begin.mZ,
-                end.mY - begin.mY,
-                end.mX - begin.mX,
-            )
-        )
+        sx = end.mX - begin.mX
+        sy = end.mY - begin.mY
+        sz = end.mZ - begin.mZ
+        sc = end.mC - begin.mC
+        st = end.mT - begin.mT
+
+        buffer_size = sx * sy * sz * sc * st
+        buffer = np.empty(buffer_size, dtype=np.float32)
+        buffer_pointer = buffer.ctypes.data_as(POINTER(bpReaderTypesC_Float))
+        self.ReadData(begin, end, resolution_index, buffer_pointer)
+        return buffer.reshape(st, sc, sz, sy, sx)
 
     def ReadMetadata(self):
         imageSizePerResolution = bpReaderTypesC_Size5DVectorPtr(
