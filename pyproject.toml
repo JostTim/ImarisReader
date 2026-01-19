@@ -1,7 +1,7 @@
 [project]
+description = "PyImarisReader is a file reader for the Imaris5 file format ('.ims')."
 name = "pyImarisReader"
 version = "0.1.0"
-description = "Add your description here"
 readme = "python/README.md"
 requires-python = ">=3.11"
 
