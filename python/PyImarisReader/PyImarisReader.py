@@ -33,6 +33,14 @@ import platform
 import os.path
 from collections import defaultdict
 from typing import List, Dict
+from enum import IntEnum
+
+
+class DatatypeCode(IntEnum):
+    UInt8 = 0
+    UInt16 = 1
+    UInt32 = 2
+    Float32 = 3
 
 
 # --- C types ---
@@ -62,11 +70,11 @@ bpReaderTypesC_DataTypeVectorPtr = POINTER(bpReaderTypesC_DataTypeVector)
 
 class bpReaderTypesC_Index5D(Structure):
     _fields_ = [
-        ("mValueX", c_uint),
-        ("mValueY", c_uint),
-        ("mValueZ", c_uint),
-        ("mValueC", c_uint),
-        ("mValueT", c_uint),
+        ("mValueX", c_uint),  # X spatial
+        ("mValueY", c_uint),  # Y spatial
+        ("mValueZ", c_uint),  # Z spatial
+        ("mValueC", c_uint),  # Channel
+        ("mValueT", c_uint),  # Time
     ]
 
 
@@ -314,11 +322,13 @@ class FileImagesInfo:
 
     def _get_lib_filename(self):
         if platform.system() == "Windows":
-            return os.path.join(os.path.dirname(__file__), "bpImarisReader.dll")
+            return os.path.join(os.path.dirname(__file__), "bin/bpImarisReader.dll")
         elif platform.system() == "Darwin":
-            return os.path.join(os.path.dirname(__file__), "libbpImarisReader.dylib")
+            return os.path.join(
+                os.path.dirname(__file__), "bin/libbpImarisReader.dylib"
+            )
         elif platform.system() == "Linux":
-            return os.path.join(os.path.dirname(__file__), "libbpImarisReader.so")
+            return os.path.join(os.path.dirname(__file__), "bin/libbpImarisReader.so")
         else:
             print('Platform not supported: "{}"'.format(platform.system()))
             return None
@@ -342,7 +352,8 @@ class FileImagesInfo:
         for i in range(dataTypes.contents.mDataTypesSize):
             dataTypes_py.append(dataTypes.contents.mDataTypes[i])
         self.FreeDataTypes(dataTypes)
-        return dataTypes_py
+        # convert integer codes (0, 1 ,2, 3) for DatatypeCode Enums.
+        return [DatatypeCode(datatype) for datatype in dataTypes_py]
 
     def FreeDataTypes(self, dataTypes: bpReaderTypesC_DataTypeVectorPtr):
         self.mcdll.bpImageReaderC_FreeDataTypes.argtypes = [
@@ -376,11 +387,13 @@ class ImageReaderUInt8:
 
     def _get_lib_filename(self):
         if platform.system() == "Windows":
-            return os.path.join(os.path.dirname(__file__), "bpImarisReader.dll")
+            return os.path.join(os.path.dirname(__file__), "bin/bpImarisReader.dll")
         elif platform.system() == "Darwin":
-            return os.path.join(os.path.dirname(__file__), "libbpImarisReader.dylib")
+            return os.path.join(
+                os.path.dirname(__file__), "bin/libbpImarisReader.dylib"
+            )
         elif platform.system() == "Linux":
-            return os.path.join(os.path.dirname(__file__), "libbpImarisReader.so")
+            return os.path.join(os.path.dirname(__file__), "bin/libbpImarisReader.so")
         else:
             print('Platform not supported: "{}"'.format(platform.system()))
             return None
@@ -415,6 +428,28 @@ class ImageReaderUInt8:
             end.get_c_index5D(),
             resolution_index,
             buffer,
+        )
+
+    def Read(self, begin: Index5D, end: Index5D, resolution_index: int):
+        import numpy as np
+
+        buffer_size = (
+            (end.mX - begin.mX)
+            * (end.mY - begin.mY)
+            * (end.mZ - begin.mZ)
+            * (end.mC - begin.mC)
+            * (end.mT - begin.mT)
+        )
+        buffer = (bpReaderTypesC_UInt8 * buffer_size)()
+        self.ReadData(begin, end, resolution_index, buffer)
+        return np.asarray(buffer, dtype=np.uint8).reshape(
+            (
+                end.mT - begin.mT,
+                end.mC - begin.mC,
+                end.mZ - begin.mZ,
+                end.mY - begin.mY,
+                end.mX - begin.mX,
+            )
         )
 
     def ReadMetadata(self):
@@ -617,11 +652,13 @@ class ImageReaderUInt16:
 
     def _get_lib_filename(self):
         if platform.system() == "Windows":
-            return os.path.join(os.path.dirname(__file__), "bpImarisReader.dll")
+            return os.path.join(os.path.dirname(__file__), "bin/bpImarisReader.dll")
         elif platform.system() == "Darwin":
-            return os.path.join(os.path.dirname(__file__), "libbpImarisReader.dylib")
+            return os.path.join(
+                os.path.dirname(__file__), "bin/libbpImarisReader.dylib"
+            )
         elif platform.system() == "Linux":
-            return os.path.join(os.path.dirname(__file__), "libbpImarisReader.so")
+            return os.path.join(os.path.dirname(__file__), "bin/libbpImarisReader.so")
         else:
             print('Platform not supported: "{}"'.format(platform.system()))
             return None
@@ -656,6 +693,28 @@ class ImageReaderUInt16:
             end.get_c_index5D(),
             resolution_index,
             buffer,
+        )
+
+    def Read(self, begin: Index5D, end: Index5D, resolution_index: int):
+        import numpy as np
+
+        buffer_size = (
+            (end.mX - begin.mX)
+            * (end.mY - begin.mY)
+            * (end.mZ - begin.mZ)
+            * (end.mC - begin.mC)
+            * (end.mT - begin.mT)
+        )
+        buffer = (bpReaderTypesC_UInt16 * buffer_size)()
+        self.ReadData(begin, end, resolution_index, buffer)
+        return np.asarray(buffer, dtype=np.uint16).reshape(
+            (
+                end.mT - begin.mT,
+                end.mC - begin.mC,
+                end.mZ - begin.mZ,
+                end.mY - begin.mY,
+                end.mX - begin.mX,
+            )
         )
 
     def ReadMetadata(self):
@@ -858,11 +917,13 @@ class ImageReaderUInt32:
 
     def _get_lib_filename(self):
         if platform.system() == "Windows":
-            return os.path.join(os.path.dirname(__file__), "bpImarisReader.dll")
+            return os.path.join(os.path.dirname(__file__), "bin/bpImarisReader.dll")
         elif platform.system() == "Darwin":
-            return os.path.join(os.path.dirname(__file__), "libbpImarisReader.dylib")
+            return os.path.join(
+                os.path.dirname(__file__), "bin/libbpImarisReader.dylib"
+            )
         elif platform.system() == "Linux":
-            return os.path.join(os.path.dirname(__file__), "libbpImarisReader.so")
+            return os.path.join(os.path.dirname(__file__), "bin/libbpImarisReader.so")
         else:
             print('Platform not supported: "{}"'.format(platform.system()))
             return None
@@ -897,6 +958,28 @@ class ImageReaderUInt32:
             end.get_c_index5D(),
             resolution_index,
             buffer,
+        )
+
+    def Read(self, begin: Index5D, end: Index5D, resolution_index: int):
+        import numpy as np
+
+        buffer_size = (
+            (end.mX - begin.mX)
+            * (end.mY - begin.mY)
+            * (end.mZ - begin.mZ)
+            * (end.mC - begin.mC)
+            * (end.mT - begin.mT)
+        )
+        buffer = (bpReaderTypesC_UInt32 * buffer_size)()
+        self.ReadData(begin, end, resolution_index, buffer)
+        return np.asarray(buffer, dtype=np.uint32).reshape(
+            (
+                end.mT - begin.mT,
+                end.mC - begin.mC,
+                end.mZ - begin.mZ,
+                end.mY - begin.mY,
+                end.mX - begin.mX,
+            )
         )
 
     def ReadMetadata(self):
@@ -1099,11 +1182,13 @@ class ImageReaderFloat:
 
     def _get_lib_filename(self):
         if platform.system() == "Windows":
-            return os.path.join(os.path.dirname(__file__), "bpImarisReader.dll")
+            return os.path.join(os.path.dirname(__file__), "bin/bpImarisReader.dll")
         elif platform.system() == "Darwin":
-            return os.path.join(os.path.dirname(__file__), "libbpImarisReader.dylib")
+            return os.path.join(
+                os.path.dirname(__file__), "bin/libbpImarisReader.dylib"
+            )
         elif platform.system() == "Linux":
-            return os.path.join(os.path.dirname(__file__), "libbpImarisReader.so")
+            return os.path.join(os.path.dirname(__file__), "bin/libbpImarisReader.so")
         else:
             print('Platform not supported: "{}"'.format(platform.system()))
             return None
@@ -1138,6 +1223,28 @@ class ImageReaderFloat:
             end.get_c_index5D(),
             resolution_index,
             buffer,
+        )
+
+    def Read(self, begin: Index5D, end: Index5D, resolution_index: int):
+        import numpy as np
+
+        buffer_size = (
+            (end.mX - begin.mX)
+            * (end.mY - begin.mY)
+            * (end.mZ - begin.mZ)
+            * (end.mC - begin.mC)
+            * (end.mT - begin.mT)
+        )
+        buffer = (bpReaderTypesC_Float * buffer_size)()
+        self.ReadData(begin, end, resolution_index, buffer)
+        return np.asarray(buffer, dtype=np.float32).reshape(
+            (
+                end.mT - begin.mT,
+                end.mC - begin.mC,
+                end.mZ - begin.mZ,
+                end.mY - begin.mY,
+                end.mX - begin.mX,
+            )
         )
 
     def ReadMetadata(self):
@@ -1315,3 +1422,26 @@ class ImageReaderFloat:
         self.mcdll.bpImageReaderC_DestroyFloat.argtypes = [bpImageReaderCPtr]
         self.mcdll.bpImageReaderC_DestroyFloat.restype = None
         self.mcdll.bpImageReaderC_DestroyFloat(self.mImageReaderPtr)
+
+
+class Reader:
+    def __new__(
+        cls, input_filename: str, image_index: int = 0, options: Options = Options()
+    ):
+        datatype = FileImagesInfo(
+            input_filename, options.mSWMR
+        ).GetFileImagesInformation()[image_index]
+
+        if datatype is DatatypeCode.UInt8:
+            return ImageReaderUInt8(input_filename, image_index, options)
+
+        if datatype is DatatypeCode.UInt16:
+            return ImageReaderUInt16(input_filename, image_index, options)
+
+        if datatype is DatatypeCode.UInt32:
+            return ImageReaderUInt32(input_filename, image_index, options)
+
+        if datatype is DatatypeCode.Float32:
+            return ImageReaderFloat(input_filename, image_index, options)
+
+        raise IOError("No reader for datatype {datatype} !")
